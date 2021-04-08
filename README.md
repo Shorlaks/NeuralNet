@@ -24,6 +24,15 @@ As of now, 4 activation functions are supported:
 - `"relu"` - rectified linear unit.
 - `"leaky_relu"` - leaky rectified linear unit.
 
+And 4 cost functions are supported:
+- `"se"` - squared error.
+- `"ae"` - absolute error.
+- `"sle"` - squared logarithmic error.
+- `"bce"` - binary cross entropy.
+
+
+
+
 
 
 
