@@ -1,1 +1,1 @@
-# NeuralNet
+# Neural-Network (Python)
