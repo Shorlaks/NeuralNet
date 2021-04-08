@@ -14,6 +14,10 @@ You can now create an instance of the NeuralNet class. The constructor takes thr
 - `activations`: A list containing the activation function for each layer.
 - `cost_function` A string representing the desired loss function.
 
+For example:
+
+`nn = NeuralNet([8, 12, 8, 1], ["sigmoid", "relu", "sigmoid"], "se")`
+
 
 
 
