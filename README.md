@@ -45,8 +45,14 @@ labels = [[1], [0], [1]]
 nn.train(dataset, labels, epochs=10)
 ```
 Currently the optimizer used for training is Stochastic Gradient Descent, since it backpropagates for every input, in future I will add support for other optimizers.
+### Prediction
+To calculate the output of the network when it is given a certain set of inputs, use the `predict` method. This method takes a single parameter, input, which is a list of floats. The method returns a list of floats representing the output of the network.
 
-
+For example:
+```
+input = [1, 89, 66, 23, 94, 28.1, 0.167, 21]
+output = nn.predict(input)
+```
 
 
 
