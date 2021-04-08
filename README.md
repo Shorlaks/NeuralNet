@@ -5,9 +5,16 @@ I noticed that the majority of neural network implementations on gitHub have onl
 For those reasons, I'm working on making this neural network as flexiable as possible by implementing several cost functions, different activation functions and unrestricting the depth of the network, giving the programmer the possibility to view how different setups affect the training process.
 
 ### Usage
-To use the neural network class, import NeuralNet from neural_net.py:
+To use the NeuralNet class, first import NeuralNet from neural_net.py:
 
 `from neural_net import NeuralNet`
+
+You can now create an instance of the NeuralNet class. The constructor takes three parameters:
+- `layers`: A list representing the number of layers which contains the number of neurons for each layer.
+- `activations`: A list containing the activation function for each layer.
+- `cost_function` A string representing the desired loss function.
+
+
 
 
 
