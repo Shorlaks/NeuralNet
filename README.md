@@ -44,6 +44,7 @@ dataset = [[6, 148, 72, 35, 0, 33.6, 0.627, 50],
 labels = [[1], [0], [1]]
 nn.train(dataset, labels, epochs=10)
 ```
+Currently the optimizer used for training is Stochastic Gradient Descent, since it backpropagates for every input, in future I will add support for other optimizers.
 
 
 
