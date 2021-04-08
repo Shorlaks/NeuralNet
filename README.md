@@ -36,10 +36,14 @@ You can train the neural network using the `train` method. This method takes thr
 - `"labels"` - A list of lists, where each sub-list contains the labels.
 - `"epochs"` - An integer representing the number of times the entire dataset passes forwards and backwards through the network.
 
-
-
-
-
+For example:
+```
+dataset = [[6, 148, 72, 35, 0, 33.6, 0.627, 50],
+           [1, 85, 66, 29, 0, 26.6, 0.351, 31],
+           [8, 183, 64, 0, 0, 23.3, 0.672, 32]]
+labels = [[1], [0], [1]]
+nn.train(dataset, labels, epochs=10)
+```
 
 
 
