@@ -30,6 +30,12 @@ And 4 cost functions are supported:
 - `"sle"` - squared logarithmic error.
 - `"bce"` - binary cross entropy.
 
+### Training
+You can train the neural network using the `train` method. This method takes three parameters:
+- `"data_set"` - A list of lists, where each sub-list contains the input vector.
+- `"labels"` - A list of lists, where each sub-list contains the labels.
+- `"epochs"` - An integer representing the number of times the entire dataset passes forwards and backwards through the network.
+
 
 
 
