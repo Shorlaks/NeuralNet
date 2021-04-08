@@ -18,6 +18,15 @@ For example:
 
 `nn = NeuralNet([8, 12, 8, 1], ["sigmoid", "relu", "sigmoid"], "se")`
 
+As of now, 4 activation functions are supported:
+- `"sigmoid"` - sigmoid.
+- `"tanh"` - hyperbolic tangent.
+- `"relu"` - rectified linear unit.
+- `"leaky_relu"` - leaky rectified linear unit.
+
+
+
+
 
 
 
