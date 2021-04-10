@@ -75,13 +75,13 @@ def multi_class_cross_entropy(label, output):
 
 # Derivatives
 def squared_error_derivative(label, output):
-    return -2 * (label - output)
+    return -1 * (label - output)
 
 
 def binary_cross_entropy_derivative(label, output):
+    output += 0.0000000000001
     return (output-label) / (output * (1 - output))
 
 
-
-
-
+def absolute_error_derivative(label, output):
+    return 1 if label > output else 0

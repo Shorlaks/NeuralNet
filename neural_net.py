@@ -1,23 +1,36 @@
 import random
 import activation_functions
 import loss_functions
+import math
 
 
 class NeuralNet:
-    def __init__(self, layers):
+    def __init__(self, layers, funcs, lose_func):
         self._layers = self.init_layers(layers)
+        self._activation_functions = self.init_activation_functions(funcs)
         self._weights = self.init_weights()
+        self._biases = self.init_biases()
         self._delta_weights = self.init_delta_weights()
         self._activations = self.init_activations()
         self._errors = self.init_errors()
-        self._loss_function = 'se'
-        self._learning_rate = 0.5
-        self._loss_function_dispatcher = {'se': loss_functions.squared_error,
-                                          'ae': loss_functions.absolute_error,
-                                          'sle': loss_functions.squared_logarithmic_error,
-                                          'binary_cross_entropy': loss_functions.binary_cross_entropy,
-                                          'multi_class_cross_entropy': loss_functions.multi_class_cross_entropy
-                                          }
+        self._loss_function = lose_func
+        self._learning_rate = 0.8
+        self._loss_function_derivative_dispatcher = {'se': loss_functions.squared_error_derivative,
+                                                     'ae': loss_functions.absolute_error_derivative,
+                                                     'sle': loss_functions.squared_logarithmic_error,
+                                                     'bce': loss_functions.binary_cross_entropy_derivative,
+                                                     'multi_class_cross_entropy': loss_functions.multi_class_cross_entropy
+                                                     }
+        self._activation_function_dispatcher = {'sigmoid': activation_functions.sigmoid,
+                                                'relu': activation_functions.relu,
+                                                'tanh': activation_functions.tanh,
+                                                'leaky_relu': activation_functions.leaky_relu
+                                                }
+        self._activation_function_derivative_dispatcher = {'sigmoid': activation_functions.sigmoid_derivative,
+                                                           'relu': activation_functions.relu_derivative,
+                                                           'tanh': activation_functions.tanh_derivative,
+                                                           'leaky_relu': activation_functions.leaky_relu_derivative
+                                                           }
 
     # checking user's input for correctness
     @staticmethod
@@ -30,6 +43,10 @@ class NeuralNet:
         except AssertionError as e:
             raise Exception(e)
         return layers
+
+    @staticmethod
+    def init_activation_functions(funcs):
+        return funcs
 
     def init_activations(self):
         activations = [[0 for _ in range(self._layers[i+1])]
@@ -47,6 +64,11 @@ class NeuralNet:
                    for i in range(len(self._layers)-1)]
         return weights
 
+    def init_biases(self):
+        biases = [[random.uniform(-1, 1) for _ in range(self._layers[i+1])]
+                  for i in range(len(self._layers)-1)]
+        return biases
+
     def init_delta_weights(self):
         weights = [[[0 for _ in range(self._layers[i])]
                     for __ in range(self._layers[i+1])]
@@ -57,25 +79,25 @@ class NeuralNet:
         self.forward_pass(input_list)
         return self._activations[-1]
 
-    def train(self, input_data_set, labels):
-        for i, input_list in enumerate(input_data_set):
-            self.forward_pass(input_list)
-            # error = self.calculate_total_error(labels[i], self._activations[-1])
-            self.backward_pass(labels[i], self._activations[-1], input_list)
+    def train(self, input_data_set, labels, epochs=1):
+        for j in range(epochs):
+            for i, input_list in enumerate(input_data_set):
+                self.forward_pass(input_list)
+                self.backward_pass(labels[i], self._activations[-1], input_list)
 
     def forward_pass(self, input_list):
         for i in range(len(self._activations[0])):
-            dot_product = self.lists_dot_product(input_list, self._weights[0][i])
-            self._activations[0][i] = activation_functions.sigmoid(dot_product)
+            dot_product = self.lists_dot_product(input_list, self._weights[0][i]) + self._biases[0][i]
+            self._activations[0][i] = self._activation_function_dispatcher[self._activation_functions[0]](dot_product)
         for i in range(1, len(self._activations)):
             for j in range(len(self._activations[i])):
-                dot_product = self.lists_dot_product(self._activations[i-1], self._weights[i][j])
-                self._activations[i][j] = activation_functions.sigmoid(dot_product)
+                dot_product = self.lists_dot_product(self._activations[i-1], self._weights[i][j]) + self._biases[i][j]
+                self._activations[i][j] = self._activation_function_dispatcher[self._activation_functions[i]](dot_product)
 
     def calculate_output_layer_errors(self, label, output):
         for i in range(len(self._errors[-1])):
-            self._errors[-1][i] = loss_functions.binary_cross_entropy_derivative(label[i], output[i])
-            self._errors[-1][i] *= activation_functions.sigmoid_derivative(self._activations[-1][i])
+            self._errors[-1][i] = self._loss_function_derivative_dispatcher[self._loss_function](label[i], output[i])
+            self._errors[-1][i] *= self._activation_function_derivative_dispatcher[self._activation_functions[-1]](self._activations[-1][i])
 
     def backward_pass(self, label, output, training_input):
         self.calculate_output_layer_errors(label, output)
@@ -84,6 +106,7 @@ class NeuralNet:
             self.calculate_hidden_layer_errors(i-1)
         self.calculate_input_layer_delta_weights(training_input)
         self.update_weights()
+        self.update_biases()
 
     def calculate_delta_weights(self, layer):
         for i in range(len(self._weights[layer])):
@@ -101,7 +124,7 @@ class NeuralNet:
         for i in range(len(self._errors[layer])):
             for j in range(len(self._errors[layer+1])):
                 self._errors[layer][i] += self._errors[layer+1][j] * self._weights[layer+1][j][i]
-            self._errors[layer][i] *= activation_functions.sigmoid_derivative(self._activations[layer][i])
+            self._errors[layer][i] *= self._activation_function_derivative_dispatcher[self._activation_functions[layer]](self._activations[layer][i])
 
     def update_weights(self):
         for i in range(len(self._weights)):
@@ -109,38 +132,14 @@ class NeuralNet:
                 for k in range(len(self._weights[i][j])):
                     self._weights[i][j][k] -= self._learning_rate * self._delta_weights[i][j][k]
 
+    def update_biases(self):
+        for i in range(len(self._biases)):
+            for j in range(len(self._biases[i])):
+                self._biases[i][j] -= self._learning_rate * self._biases[i][j] * self._errors[i][j]
+
     @staticmethod
     def lists_dot_product(l1, l2):
-        return sum(i[0] * i[1] for i in zip(l1, l2))
-
-
-data = []
-labels = []
-path = r"C:\Users\dank1\Desktop\pima.txt"
-file = open(path, 'r')
-lines = file.readlines()
-for line in lines:
-    arr = line.split(',')
-    line_data = []
-    for i in range(len(arr) - 1):
-        line_data.append(float(arr[i]))
-    data.append(line_data)
-    labels.append([float(arr[-1][:1])])
-
-for i in range(8):
-    max = 0
-    for d in data:
-        if d[i] > max:
-            max = d[i]
-    for d in data:
-        d[i] /= max
-
-
-nn = NeuralNet([8, 8, 1])
-nn.train(data, labels)
-
-p = [0.35294117647058826, 0.7437185929648241, 0.5901639344262295, 0.35353535353535354, 0.0, 0.5007451564828614, 0.2590909090909091, 0.6172839506172839]
-print(nn.predict(p))
-
-
-print("finished")
+        s = sum(i[0] * i[1] for i in zip(l1, l2))
+        if math.isinf(s):
+            return 0
+        return s
