@@ -17,9 +17,8 @@ class NeuralNet:
         self._learning_rate = 0.8
         self._loss_function_derivative_dispatcher = {'se': loss_functions.squared_error_derivative,
                                                      'ae': loss_functions.absolute_error_derivative,
-                                                     'sle': loss_functions.squared_logarithmic_error,
-                                                     'bce': loss_functions.binary_cross_entropy_derivative,
-                                                     'multi_class_cross_entropy': loss_functions.multi_class_cross_entropy
+                                                     'sle': loss_functions.squared_logarithmic_error_derivative,
+                                                     'bce': loss_functions.binary_cross_entropy_derivative
                                                      }
         self._activation_function_dispatcher = {'sigmoid': activation_functions.sigmoid,
                                                 'relu': activation_functions.relu,
