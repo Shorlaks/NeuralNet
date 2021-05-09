@@ -85,3 +85,7 @@ def binary_cross_entropy_derivative(label, output):
 
 def absolute_error_derivative(label, output):
     return 1 if label > output else 0
+
+
+def squared_logarithmic_error_derivative(label, output):
+    return (-2 * (math.log10(label + 1) - math.log10(output + 1)))/(output + 1)
